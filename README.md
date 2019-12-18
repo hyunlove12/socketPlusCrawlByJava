@@ -22,3 +22,7 @@
   -kafka
 
   -redis
+  
+4. jSoup이용 크롤링
+
+  -href링크 들어가서 특정 태그 값 가
