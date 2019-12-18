@@ -36,6 +36,7 @@ public class ChatServerTread extends Thread {
 				//닉넴임 입력
 				String[] tokens = request.split(":");
 				if("join".equals(tokens[0])) {
+					//join하기 전에는 out객체를 공유 안하는 것?
 					doJoin(tokens[1], printWriter);
 				} else if("message".equals(tokens[0])) {
 					
@@ -70,6 +71,11 @@ public class ChatServerTread extends Thread {
 				PrintWriter printWriter = (PrintWriter)writer;
 				printWriter.println( data );
 				printWriter.flush();
+				try {
+					writer.write(data);
+				} catch (IOException e) { 
+					e.printStackTrace();
+				}
 			}
 		}
 		
