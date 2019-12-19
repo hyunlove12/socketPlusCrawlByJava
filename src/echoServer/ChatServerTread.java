@@ -24,8 +24,11 @@ public class ChatServerTread extends Thread {
 	@Override
 	public void run() {
 		try {
+			//System.out.println("list의 객체 동일성" + this.list + "@@@@@");
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-			PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));			
+			PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+			//join하기 전에 참가가 되버린다.
+			addWriter(printWriter);
 			while(true) {
 				String request = bufferedReader.readLine();
 				System.out.println(request);
@@ -35,13 +38,15 @@ public class ChatServerTread extends Thread {
 				}
 				//닉넴임 입력
 				String[] tokens = request.split(":");
-				if("join".equals(tokens[0])) {
+				if("join".equals(tokens[0])) {					
 					//join하기 전에는 out객체를 공유 안하는 것?
-					doJoin(tokens[1], printWriter);
+					doJoin(tokens[1], printWriter);					
 				} else if("message".equals(tokens[0])) {
 					
 				} else if("quit".equals(tokens[0])) {
-					
+					System.out.println("종료!");
+					printWriter.write("안녕히 가세요");
+					socket.close();
 				} else {
 					System.out.println("알 수 없는 요청");
 				}
@@ -55,13 +60,15 @@ public class ChatServerTread extends Thread {
 	private void doJoin(String nickName, Writer writer) {
 		this.nickName = nickName;		
 		String joinName = nickName + "님이 참여하였습니다.";
-		addWriter(writer);
-		broadcast(joinName);	
+//		addWriter(writer);
+		broadcast(joinName);		
 	}
 	
 	private void addWriter(Writer writer) {
 		synchronized (EchoServer.list) {
-			list.add(writer);
+			EchoServer.list.add(writer);
+			System.out.println("list의 객체 동일성" + this.list + "@@@@@");
+			System.out.println("nickname의 객체 동일성" + this.nickName + "@@@@@");
 		}
 	}
 	
@@ -71,11 +78,6 @@ public class ChatServerTread extends Thread {
 				PrintWriter printWriter = (PrintWriter)writer;
 				printWriter.println( data );
 				printWriter.flush();
-				try {
-					writer.write(data);
-				} catch (IOException e) { 
-					e.printStackTrace();
-				}
 			}
 		}
 		
